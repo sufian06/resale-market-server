@@ -20,9 +20,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try{
+    const productsCollections = client.db("resaleMarket").collection('products');
 
+    app.get('/category', async(req, res) => {
+      const query = {};
+      const category = await productsCollections.find(query).toArray();
+      res.send(category)
+    })
   } finally {
-    
+
   }
 
 }
