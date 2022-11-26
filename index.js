@@ -20,6 +20,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try{
     const productsCollections = client.db("resaleMarket").collection('products');
+    const usersCollection = client.db("resaleMarket").collection("users");
 
     app.get('/category', async(req, res) => {
       const query = {};
@@ -32,7 +33,15 @@ async function run() {
       const query = {_id: ObjectId(id)};
       const category = await productsCollections.find(query).toArray();
       res.send(category)
-    })
+    });
+
+    app.post('/users', async(req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+
+    });
+
   } finally {
 
   }
