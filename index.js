@@ -18,6 +18,23 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization
+  if(!authHeader){
+    return res.status(401).send('unauthorized access')
+  }
+
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded) {
+    if(err){
+      return res.status(403).send({message: 'forbidden access'})
+    }
+    req.decoded = decoded;
+    next();
+  })
+}
+
 async function run() {
   try{
     const productsCollections = client.db("resaleMarket").collection('products');
@@ -37,6 +54,36 @@ async function run() {
       res.send(category)
     });
 
+    
+
+    // user post api
+    app.post('/users', async(req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // booking api
+    app.get('/bookings', verifyJWT, async(req, res) => {
+      const email = req.query.email;
+      const decodedEmail = req.decoded.email;
+
+      if(email !== decodedEmail){
+        return res.status(403).send({message: 'forbidden access'})
+      }
+
+      const query = {email: email};
+      const bookings = await bookingsCollection.find(query).toArray();
+      res.send(bookings);
+    })
+
+    app.post('/bookings', async(req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking)
+      res.send(result);
+    })
+
+    // jwt api
     app.get('/jwt', async(req, res) => {
       const email = req.query.email;
       const query = {email: email}
@@ -48,26 +95,6 @@ async function run() {
         return res.send({ accessToken: token });
       }
       res.status(403).send({accessToken: ''})
-    })
-
-    app.post('/users', async(req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-    });
-
-    // booking api
-    app.get('/bookings', async(req, res) => {
-      const email = req.query.email;
-      const query = {email: email};
-      const bookings = await bookingsCollection.find(query).toArray();
-      res.send(bookings);
-    })
-
-    app.post('/bookings', async(req, res) => {
-      const booking = req.body;
-      const result = await bookingsCollection.insertOne(booking)
-      res.send(result);
     })
 
   } finally {
