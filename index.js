@@ -54,6 +54,12 @@ async function run() {
       res.send(category)
     });
 
+    app.get('/productCategory', async(req, res) => {
+      const query = {}
+      const result = await productsCollections.find(query).project({category: 1}).toArray();
+      res.send(result);
+    })
+
     
     // user get api
     app.get('/users', async(req, res) => {
@@ -75,7 +81,7 @@ async function run() {
 
       const query = {email: decodedEmail};
       const user = await usersCollection.findOne(query);
-      
+
       if(user?.role !== 'admin'){
         return res.status(403).send({message: 'forbidden access'})
       }
@@ -90,6 +96,15 @@ async function run() {
       }
       const result = await usersCollection.updateOne(filter, updatedDoc, options);
       res.send(result);
+    });
+
+    // user role route
+    app.get('/users/admin/:email', async(req, res) => {
+      const email = req.params.email;
+      const query = {email}
+      const user = await usersCollection.findOne(query)
+      res.send({role: user?.role});
+
     })
 
     // booking api
