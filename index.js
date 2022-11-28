@@ -40,6 +40,7 @@ async function run() {
     const productsCollections = client.db("resaleMarket").collection('products');
     const usersCollection = client.db("resaleMarket").collection("users");
     const bookingsCollection = client.db("resaleMarket").collection('bookings')
+    const addedProductsCollection = client.db("resaleMarket").collection('addedProducts')
 
     app.get('/category', async(req, res) => {
       const query = {};
@@ -139,6 +140,13 @@ async function run() {
         return res.send({ accessToken: token });
       }
       res.status(403).send({accessToken: ''})
+    })
+
+    // added product
+    app.post('/addedproducts', async(req, res) => {
+      const addedproduct = req.body;
+      result = await addedProductsCollection.insertOne(addedproduct)
+      res.send(result);
     })
 
   } finally {
