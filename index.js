@@ -153,7 +153,14 @@ async function run() {
       const query = {}
       const addedProducts = await addedProductsCollection.find(query).toArray();
       res.send(addedProducts);
-    })
+    });
+
+    app.delete("/addedproducts/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await addedProductsCollection.deleteOne(filter);
+      res.send(result);
+    });
 
   } finally {
 
