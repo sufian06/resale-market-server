@@ -149,6 +149,12 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/addedproducts', async(req, res) => {
+      const query = {}
+      const addedProducts = await addedProductsCollection.find(query).toArray();
+      res.send(addedProducts);
+    })
+
   } finally {
 
   }
