@@ -69,7 +69,24 @@ async function run() {
       const query = {};
       const users = await usersCollection.find(query).toArray();
       res.send(users);
-    })
+    });
+
+      // delete user
+    app.delete("/users/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await usersCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    // allbuyers get api
+    app.get('/allbuyers', async(req, res) => {
+      const query = {role: 'buyer'};
+      const users = await usersCollection.find(query).toArray();
+      res.send(users);
+    });
+
+
 
     // user post api
     app.post('/users', async(req, res) => {
